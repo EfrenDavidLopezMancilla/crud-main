@@ -16,7 +16,7 @@ db = SQLAlchemy(app)
 
 # Modelo de la base de datos
 class Estudiante(db.Model):
-    __tablename__ = 'estudiantes'
+    __tablename__ = 'alumnos'
     __table_args__ = {'schema': 'cetech'}  # Especifica el esquema
     no_control = db.Column(db.String, primary_key=True)
     nombre = db.Column(db.String)
