@@ -1,7 +1,8 @@
 import os
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from dotenv import load_dotenv  # Importar dotenv
+from dotenv import load_dotenv
+from sqlalchemy import text
 
 # Cargar las variables de entorno desde el archivo .env
 load_dotenv()
@@ -9,7 +10,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # Configuración de la base de datos
-app.config['SQLALCHEMY_DATABASE_URI'] =  os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -33,13 +34,16 @@ class Estudiante(db.Model):
             'semestre': self.semestre
         }
 
-# Rutas con vistas
-
-# Mostrar todos los alumnos
+# Ruta de prueba de conexión
 @app.route('/')
 def index():
-    alumnos = Estudiante.query.all()
-    return render_template('index.html', alumnos=alumnos)
+    try:
+        # Verificar la conexión
+        db.session.execute(text('SELECT 1'))
+        alumnos = Estudiante.query.all()
+        return render_template('index.html', alumnos=alumnos)
+    except Exception as e:
+        return str(e)
 
 # Crear un nuevo estudiante (formulario)
 @app.route('/alumnos/new', methods=['GET', 'POST'])
@@ -82,4 +86,4 @@ def delete_estudiante(no_control):
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
