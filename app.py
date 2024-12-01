@@ -9,75 +9,87 @@ load_dotenv()
 app = Flask(__name__)
 
 # Configuración de la base de datos
-app.config['SQLALCHEMY_DATABASE_URI'] =  os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Modelo de la base de datos
-class Estudiante(db.Model):
-    __tablename__ = 'alumnos'
+# Modelo de la base de datos para productos
+class Producto(db.Model):
+    __tablename__ = 'productos'
     __table_args__ = {'schema': 'cetech'}  # Especifica el esquema
-    no_control = db.Column(db.String, primary_key=True)
-    nombre = db.Column(db.String)
-    ap_paterno = db.Column(db.String)
-    ap_materno = db.Column(db.String)
-    semestre = db.Column(db.Integer)
+    producto_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nombre = db.Column(db.String(255), nullable=False)
+    descripcion = db.Column(db.Text)
+    precio = db.Column(db.Numeric(10, 2), nullable=False)
+    cantidad_stock = db.Column(db.Integer, nullable=False)
+    categoria_id = db.Column(db.Integer)
+    proveedor_id = db.Column(db.Integer)
+    fecha_ingreso = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
 
     def to_dict(self):
         return {
-            'no_control': self.no_control,
+            'producto_id': self.producto_id,
             'nombre': self.nombre,
-            'ap_paterno': self.ap_paterno,
-            'ap_materno': self.ap_materno,
-            'semestre': self.semestre
+            'descripcion': self.descripcion,
+            'precio': self.precio,
+            'cantidad_stock': self.cantidad_stock,
+            'categoria_id': self.categoria_id,
+            'proveedor_id': self.proveedor_id,
+            'fecha_ingreso': self.fecha_ingreso
         }
 
 # Rutas con vistas
 
-# Mostrar todos los alumnos
+# Mostrar todos los productos
 @app.route('/')
 def index():
-    alumnos = Estudiante.query.all()
-    return render_template('index.html', alumnos=alumnos)
+    productos = Producto.query.all()
+    return render_template('index.html', productos=productos)
 
-# Crear un nuevo estudiante (formulario)
-@app.route('/alumnos/new', methods=['GET', 'POST'])
-def create_estudiante():
+# Crear un nuevo producto (formulario)
+@app.route('/productos/new', methods=['GET', 'POST'])
+def create_producto():
     if request.method == 'POST':
-        no_control = request.form['no_control']
         nombre = request.form['nombre']
-        ap_paterno = request.form['ap_paterno']
-        ap_materno = request.form['ap_materno']
-        semestre = int(request.form['semestre'])
+        descripcion = request.form['descripcion']
+        precio = float(request.form['precio'])
+        cantidad_stock = int(request.form['cantidad_stock'])
+        categoria_id = int(request.form['categoria_id'])
+        proveedor_id = int(request.form['proveedor_id'])
 
-        nuevo_estudiante = Estudiante(no_control=no_control, nombre=nombre, ap_paterno=ap_paterno, ap_materno=ap_materno, semestre=semestre)
-        db.session.add(nuevo_estudiante)
+        nuevo_producto = Producto(
+            nombre=nombre, descripcion=descripcion, precio=precio,
+            cantidad_stock=cantidad_stock, categoria_id=categoria_id, proveedor_id=proveedor_id
+        )
+        db.session.add(nuevo_producto)
         db.session.commit()
 
         return redirect(url_for('index'))
-    return render_template('create_estudiante.html')
+    return render_template('create_producto.html')
 
-# Actualizar un estudiante (formulario)
-@app.route('/alumnos/update/<string:no_control>', methods=['GET', 'POST'])
-def update_estudiante(no_control):
-    estudiante = Estudiante.query.get(no_control)
+# Actualizar un producto (formulario)
+@app.route('/productos/update/<int:producto_id>', methods=['GET', 'POST'])
+def update_producto(producto_id):
+    producto = Producto.query.get(producto_id)
     if request.method == 'POST':
-        estudiante.nombre = request.form['nombre']
-        estudiante.ap_paterno = request.form['ap_paterno']
-        estudiante.ap_materno = request.form['ap_materno']
-        estudiante.semestre = int(request.form['semestre'])
+        producto.nombre = request.form['nombre']
+        producto.descripcion = request.form['descripcion']
+        producto.precio = float(request.form['precio'])
+        producto.cantidad_stock = int(request.form['cantidad_stock'])
+        producto.categoria_id = int(request.form['categoria_id'])
+        producto.proveedor_id = int(request.form['proveedor_id'])
         
         db.session.commit()
         return redirect(url_for('index'))
-    return render_template('update_estudiante.html', estudiante=estudiante)
+    return render_template('update_producto.html', producto=producto)
 
-# Eliminar un estudiante
-@app.route('/alumnos/delete/<string:no_control>')
-def delete_estudiante(no_control):
-    estudiante = Estudiante.query.get(no_control)
-    if estudiante:
-        db.session.delete(estudiante)
+# Eliminar un producto
+@app.route('/productos/delete/<int:producto_id>')
+def delete_producto(producto_id):
+    producto = Producto.query.get(producto_id)
+    if producto:
+        db.session.delete(producto)
         db.session.commit()
     return redirect(url_for('index'))
 

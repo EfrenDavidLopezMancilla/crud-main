@@ -1,23 +1,36 @@
 {% extends 'base.html' %}
-{% block title %}Editar Estudiante{% endblock %}
+{% block title %}Editar Productos{% endblock %}
 {% block content %}
-<form action="{{ url_for('update_estudiante', no_control=estudiante.no_control) }}" method="POST">
+<form action="{{ url_for('update_producto', producto_id=producto.producto_id) }}" method="POST">
     <div class="form-group mb-3">
         <label for="nombre">Nombre</label>
         <input type="text" class="form-control" id="nombre" name="nombre" value="{{ estudiante.nombre }}" required>
     </div>
     <div class="form-group mb-3">
-        <label for="ap_paterno">Apellido Paterno</label>
-        <input type="text" class="form-control" id="ap_paterno" name="ap_paterno" value="{{ estudiante.ap_paterno }}" required>
+        <label for="descripcion">Descripción</label>
+        <textarea class="form-control" id="descripcion" name="descripcion" required>{{ producto.descripcion }}</textarea>
     </div>
     <div class="form-group mb-3">
-        <label for="ap_materno">Apellido Materno</label>
-        <input type="text" class="form-control" id="ap_materno" name="ap_materno" value="{{ estudiante.ap_materno }}" required>
+        <label for="precio">Precio</label>
+        <input type="number" step="0.01" class="form-control" id="precio" name="precio" value="{{ producto.precio }}" required>
     </div>
     <div class="form-group mb-3">
-        <label for="semestre">Semestre</label>
-        <input type="number" class="form-control" id="semestre" name="semestre" value="{{ estudiante.semestre }}" required>
+        <label for="cantidad_stock">Cantidad en Stock</label>
+        <input type="number" class="form-control" id="cantidad_stock" name="cantidad_stock" value="{{ producto.cantidad_stock }}" required>
     </div>
+    <div class="form-group mb-3">
+        <label for="categoria_id">Categoría ID</label>
+        <input type="number" class="form-control" id="categoria_id" name="categoria_id" value="{{ producto.categoria_id }}">
+    </div>
+    <div class="form-group mb-3">
+        <label for="proveedor_id">Proveedor ID</label>
+        <input type="number" class="form-control" id="proveedor_id" name="proveedor_id" value="{{ producto.proveedor_id }}">
+    </div>
+    <div class="form-group mb-3">
+        <label for="fecha_ingreso">Fecha de Ingreso</label>
+        <input type="datetime-local" class="form-control" id="fecha_ingreso" name="fecha_ingreso" value="{{ producto.fecha_ingreso.strftime('%Y-%m-%dT%H:%M') }}">
+    </div>
+    
     <button type="submit" class="btn btn-primary">Actualizar</button>
 </form>
 {% endblock %}
